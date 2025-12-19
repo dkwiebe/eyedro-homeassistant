@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 import aiohttp
@@ -17,11 +18,26 @@ from .const import API_PATH_GETDATA, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+# IP address validation pattern
+IP_ADDRESS_PATTERN = re.compile(
+    r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+)
+
+
+def validate_ip_address(ip: str) -> bool:
+    """Validate IP address format."""
+    return IP_ADDRESS_PATTERN.match(ip) is not None
+
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect."""
-    host = data[CONF_HOST]
+    host = data[CONF_HOST].strip()
     port = data.get(CONF_PORT, DEFAULT_PORT)
+    
+    # Validate IP address format
+    if not validate_ip_address(host):
+        raise ValueError("Invalid IP address format")
+    
     url = f"http://{host}:{port}{API_PATH_GETDATA}"
 
     async with aiohttp.ClientSession() as session:
@@ -55,6 +71,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 info = await validate_input(self.hass, user_input)
+            except ValueError as err:
+                if "Invalid IP address" in str(err):
+                    errors[CONF_HOST] = "invalid_ip"
+                else:
+                    errors["base"] = "invalid_auth"
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
@@ -63,23 +84,36 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
             else:
-                # Check for existing entries with the same host
-                await self.async_set_unique_id(f"{user_input[CONF_HOST]}:{user_input.get(CONF_PORT, DEFAULT_PORT)}")
+                # Check for existing entries with the same host:port combination
+                await self.async_set_unique_id(
+                    f"{user_input[CONF_HOST]}:{user_input.get(CONF_PORT, DEFAULT_PORT)}"
+                )
                 self._abort_if_unique_id_configured()
                 
-                return self.async_create_entry(title=info["title"], data=user_input)
+                # Store the validated and cleaned host
+                entry_data = {
+                    CONF_HOST: user_input[CONF_HOST].strip(),
+                    CONF_PORT: user_input.get(CONF_PORT, DEFAULT_PORT),
+                    CONF_SCAN_INTERVAL: user_input.get(
+                        CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds
+                    ),
+                }
+                
+                return self.async_create_entry(title=info["title"], data=entry_data)
+
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_HOST, default=""): str,
+                vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
+                vol.Optional(
+                    CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL.seconds
+                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+            }
+        )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_HOST): str,
-                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-                    vol.Optional(
-                        CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL.seconds
-                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
-                }
-            ),
+            data_schema=data_schema,
             errors=errors,
         )
 

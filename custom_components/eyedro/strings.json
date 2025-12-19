@@ -3,21 +3,27 @@
     "step": {
       "user": {
         "title": "Eyedro Configuration",
-        "description": "Enter the IP address and port of your Eyedro device",
+        "description": "Enter the IP address and port of your Eyedro device. The device must be accessible on your local network.",
         "data": {
-          "host": "Host IP Address",
+          "host": "IP Address",
           "port": "Port",
-          "scan_interval": "Scan Interval (seconds)"
+          "scan_interval": "Update Interval (seconds)"
+        },
+        "data_description": {
+          "host": "The IP address of your Eyedro device (e.g., 192.168.2.66)",
+          "port": "The port number for the API (default: 8080)",
+          "scan_interval": "How often to poll the device for updates (default: 10 seconds, range: 5-300)"
         }
       }
     },
     "error": {
-      "cannot_connect": "Unable to connect to Eyedro device. Please check the IP address and port.",
+      "cannot_connect": "Unable to connect to Eyedro device. Please check the IP address and port, and ensure the device is powered on and connected to your network.",
       "invalid_auth": "Invalid response from Eyedro device. Please verify the device is responding correctly.",
-      "unknown": "Unexpected error occurred"
+      "invalid_ip": "Invalid IP address format. Please enter a valid IPv4 address (e.g., 192.168.2.66).",
+      "unknown": "Unexpected error occurred. Please check the logs for more details."
     },
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "This Eyedro device is already configured."
     }
   }
 }
