@@ -71,11 +71,11 @@ The integration connects to the Eyedro device's local API endpoint:
 
 ### Data Units
 
-The Eyedro API returns data in the following units:
-- Power Factor: Tenths of percent (converted to % by dividing by 10)
-- Voltage: Tens of millivolts (converted to volts by dividing by 100)
-- Current: Milliamps (converted to amps by dividing by 1000)
-- Power: Watts (converted to kW by dividing by 1000)
+The Eyedro API returns data in the following units (per [official API documentation](https://eyedro.com/eyefi-getdata-api-command-sample-code/)):
+- Power Factor: Milli-units (e.g., 988 = 0.988, converted to % by dividing by 10)
+- Voltage: Centivolts (e.g., 11665 = 116.65V, converted to volts by dividing by 100)
+- Current: Milliamps (e.g., 11800 = 11.8A, converted to amps by dividing by 1000)
+- Power: Watts (e.g., 1360 = 1360W, converted to kW by dividing by 1000)
 
 ## Creating Energy Sensors
 
@@ -98,6 +98,28 @@ sensor:
 ## Development
 
 This integration follows the standard Home Assistant custom component structure and best practices as outlined in the [Home Assistant Developer Documentation](https://developers.home-assistant.io/docs/creating_component_index/).
+
+### Testing the API
+
+A test script is included to validate the Eyedro API response format. This can help verify that your device's response matches the expected format before using the integration. The script uses only Python standard library (no external dependencies required).
+
+```bash
+python3 test_eyedro_api.py <IP_ADDRESS> [PORT]
+```
+
+**Example:**
+```bash
+python3 test_eyedro_api.py 192.168.2.66 8080
+```
+
+The test script will:
+- Query the Eyedro device at the specified IP and port
+- Validate the response structure matches the expected format
+- Display all channel data with unit conversions
+- Show calculated sensor values (as the integration would compute them)
+- Display the raw JSON response
+
+This is useful for debugging and verifying API compatibility.
 
 ## License
 

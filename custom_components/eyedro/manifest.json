@@ -1,7 +1,7 @@
 {
   "domain": "eyedro",
   "name": "Eyedro",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "documentation": "https://github.com/dkwiebe/eyedro-homeassistant",
   "requirements": ["aiohttp"],
   "codeowners": ["@darrenwiebe"],
