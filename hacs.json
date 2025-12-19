@@ -1,0 +1,9 @@
+{
+  "name": "Eyedro",
+  "content_in_root": false,
+  "domains": ["eyedro"],
+  "country": ["US", "CA"],
+  "homeassistant": "2023.1.0",
+  "iot_class": "Local Polling"
+}
+

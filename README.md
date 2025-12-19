@@ -2,9 +2,11 @@
 
 **⚠️ UNOFFICIAL INTEGRATION** - This is a custom, unofficial Home Assistant integration for Eyedro energy monitoring devices. It is not developed, endorsed, or supported by Eyedro or Home Assistant.
 
+**🚧 UNDER ACTIVE DEVELOPMENT** - This integration is currently under active development and **does not work yet**. The code structure is in place, but it has not been tested and may contain bugs or incomplete functionality. Use at your own risk.
+
 ## About
 
-Custom Home Assistant integration for Eyedro energy monitoring devices.
+Custom Home Assistant integration for Eyedro energy monitoring devices. This project is currently in development and not yet functional.
 
 ## Features
 
@@ -15,7 +17,32 @@ Custom Home Assistant integration for Eyedro energy monitoring devices.
 
 ## Installation
 
+**Note: This integration is not yet functional. Installation instructions are for reference only.**
+
+### HACS Installation (Recommended)
+
+Once development is complete, you can install this integration via HACS:
+
+1. Make sure [HACS](https://hacs.xyz/) is installed in your Home Assistant instance
+
+2. In HACS, go to **Integrations**
+
+3. Click the three dots (⋮) in the top right corner and select **Custom repositories**
+
+4. Add this repository:
+   - Repository: `https://github.com/dkwiebe/eyedro-homeassistant`
+   - Category: **Integration**
+   - Click **ADD**
+
+5. Search for "Eyedro" in HACS and click **Download**
+
+6. Restart Home Assistant
+
+7. Go to Settings → Devices & Services → Add Integration and search for "Eyedro"
+
 ### Manual Installation
+
+Alternatively, you can install manually:
 
 1. Copy the `custom_components/eyedro` directory to your Home Assistant `custom_components` directory:
    ```

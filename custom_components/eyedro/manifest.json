@@ -2,7 +2,7 @@
   "domain": "eyedro",
   "name": "Eyedro",
   "version": "1.0.0",
-  "documentation": "https://github.com/darrenwiebe/eyedro-homeassistant",
+  "documentation": "https://github.com/dkwiebe/eyedro-homeassistant",
   "requirements": ["aiohttp"],
   "codeowners": ["@darrenwiebe"],
   "iot_class": "local_polling"
