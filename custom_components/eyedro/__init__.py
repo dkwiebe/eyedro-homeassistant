@@ -20,8 +20,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Eyedro from a config entry."""
     host = entry.data[CONF_HOST]
     port = entry.data.get(CONF_PORT, DEFAULT_PORT)
+    # Get scan interval from options first, then fall back to data
     scan_interval = timedelta(
-        seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds)
+        seconds=entry.options.get(
+            CONF_SCAN_INTERVAL,
+            entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds),
+        )
     )
 
     # Create aiohttp session
@@ -44,11 +48,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Set up platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+        # Set up options update listener
+        entry.async_on_unload(
+            entry.add_update_listener(async_update_options)
+        )
+
         return True
     except Exception:
         # Clean up session if setup fails
         await session.close()
         raise
+
+
+async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle options update."""
+    # Update coordinator's update interval if scan_interval changed
+    coordinator: EyedroDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+    new_scan_interval = timedelta(
+        seconds=entry.options.get(
+            CONF_SCAN_INTERVAL,
+            entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds),
+        )
+    )
+    coordinator.update_interval = new_scan_interval
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

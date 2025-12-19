@@ -62,6 +62,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    @staticmethod
+    async def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> OptionsFlowHandler:
+        """Get the options flow for this handler."""
+        return OptionsFlowHandler(config_entry)
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
@@ -99,7 +106,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                 }
                 
-                return self.async_create_entry(title=info["title"], data=entry_data)
+                return self.async_create_entry(
+                    title=info["title"],
+                    data=entry_data,
+                    options={CONF_SCAN_INTERVAL: entry_data[CONF_SCAN_INTERVAL]},
+                )
 
         data_schema = vol.Schema(
             {
@@ -113,6 +124,52 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
+            data_schema=data_schema,
+            errors=errors,
+        )
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options flow for Eyedro."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            # Validate scan interval if changed
+            scan_interval = user_input.get(CONF_SCAN_INTERVAL)
+            if scan_interval is not None and (scan_interval < 5 or scan_interval > 300):
+                errors[CONF_SCAN_INTERVAL] = "invalid_scan_interval"
+            else:
+                # Update the config entry with new options
+                return self.async_create_entry(
+                    title="", data={CONF_SCAN_INTERVAL: scan_interval}
+                )
+
+        # Pre-fill form with current values
+        current_scan_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL,
+            self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds),
+        )
+
+        data_schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_SCAN_INTERVAL,
+                    default=current_scan_interval,
+                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="init",
             data_schema=data_schema,
             errors=errors,
         )

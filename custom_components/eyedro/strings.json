@@ -14,12 +14,23 @@
           "port": "The port number for the API (default: 8080)",
           "scan_interval": "How often to poll the device for updates (default: 10 seconds, range: 5-300)"
         }
+      },
+      "init": {
+        "title": "Eyedro Options",
+        "description": "Configure options for the Eyedro integration.",
+        "data": {
+          "scan_interval": "Update Interval (seconds)"
+        },
+        "data_description": {
+          "scan_interval": "How often to poll the device for updates (range: 5-300 seconds)"
+        }
       }
     },
     "error": {
       "cannot_connect": "Unable to connect to Eyedro device. Please check the IP address and port, and ensure the device is powered on and connected to your network.",
       "invalid_auth": "Invalid response from Eyedro device. Please verify the device is responding correctly.",
       "invalid_ip": "Invalid IP address format. Please enter a valid IPv4 address (e.g., 192.168.2.66).",
+      "invalid_scan_interval": "Scan interval must be between 5 and 300 seconds.",
       "unknown": "Unexpected error occurred. Please check the logs for more details."
     },
     "abort": {

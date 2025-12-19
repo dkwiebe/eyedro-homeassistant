@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2024-12-19
+
+### Added
+- Options flow handler to allow configuration changes from Home Assistant UI
+- Users can now configure scan interval settings through the integration's Configure button
+- Automatic coordinator update when options are changed
+
+### Changed
+- Scan interval now reads from options first, then falls back to config entry data
+- Improved configuration management with separate options flow
+
 ## [0.0.3] - 2024-12-19
 
 ### Changed
