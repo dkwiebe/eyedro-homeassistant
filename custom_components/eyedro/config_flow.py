@@ -29,7 +29,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
                 response.raise_for_status()
                 json_data = await response.json()
-                if "response" not in json_data or "data" not in json_data.get("response", {}):
+                # Official API returns: {"data": [[...], [...]]}
+                # See: https://eyedro.com/eyefi-getdata-api-command-sample-code/
+                if "data" not in json_data or not isinstance(json_data.get("data"), list):
                     raise ValueError("Invalid response format from Eyedro device")
         except aiohttp.ClientError as err:
             raise CannotConnect from err

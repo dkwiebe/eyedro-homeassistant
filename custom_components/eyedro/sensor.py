@@ -151,8 +151,8 @@ class EyedroAveragePowerFactorSensor(EyedroSensor):
         if len(channels) < 2:
             return None
 
-        # Power factor is in tenths of percent, convert to percent by dividing by 10
-        # Average of two values: (pf1 + pf2) / 20
-        total_pf_tenths_percent = channels[0]["power_factor"] + channels[1]["power_factor"]
-        return round(total_pf_tenths_percent / 20, 2)
+        # Power factor is in milli-units (988 = 0.988), convert to percent by dividing by 10
+        # Average of two values: (pf1 + pf2) / 20 = (pf1/10 + pf2/10) / 2
+        total_pf_milli_units = channels[0]["power_factor"] + channels[1]["power_factor"]
+        return round(total_pf_milli_units / 20, 2)
 
