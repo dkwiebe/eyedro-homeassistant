@@ -128,6 +128,67 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle a reconfiguration flow initiated by the user."""
+        errors: dict[str, str] = {}
+        entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            try:
+                info = await validate_input(self.hass, user_input)
+            except ValueError as err:
+                if "Invalid IP address" in str(err):
+                    errors[CONF_HOST] = "invalid_ip"
+                else:
+                    errors["base"] = "invalid_auth"
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                # Update the config entry with new data
+                entry_data = {
+                    CONF_HOST: user_input[CONF_HOST].strip(),
+                    CONF_PORT: user_input.get(CONF_PORT, DEFAULT_PORT),
+                    CONF_SCAN_INTERVAL: entry.data.get(
+                        CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL.seconds
+                    ),
+                }
+
+                # Preserve existing options
+                existing_options = entry.options.copy()
+
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data=entry_data,
+                    options=existing_options,
+                    title=info["title"],
+                )
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
+
+        # Pre-fill form with current values
+        current_host = entry.data.get(CONF_HOST, "")
+        current_port = entry.data.get(CONF_PORT, DEFAULT_PORT)
+
+        data_schema = vol.Schema(
+            {
+                vol.Required(CONF_HOST, default=current_host): str,
+                vol.Optional(CONF_PORT, default=current_port): cv.port,
+            }
+        )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=data_schema,
+            errors=errors,
+        )
+
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow for Eyedro."""

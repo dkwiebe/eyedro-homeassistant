@@ -24,6 +24,18 @@
         "data_description": {
           "scan_interval": "How often to poll the device for updates (range: 5-300 seconds)"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Eyedro",
+        "description": "Update the IP address and port for your Eyedro device.",
+        "data": {
+          "host": "IP Address",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "The IP address of your Eyedro device (e.g., 192.168.2.66)",
+          "port": "The port number for the API (default: 8080)"
+        }
       }
     },
     "error": {
@@ -34,7 +46,8 @@
       "unknown": "Unexpected error occurred. Please check the logs for more details."
     },
     "abort": {
-      "already_configured": "This Eyedro device is already configured."
+      "already_configured": "This Eyedro device is already configured.",
+      "reconfigure_successful": "Successfully reconfigured the Eyedro device."
     }
   }
 }
